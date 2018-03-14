@@ -105,3 +105,4 @@ nbactions.xml
 
 
 # End of https://www.gitignore.io/api/web,java,macos,netbeans,java-web,code-java,microsoftoffice
+/DentistOffice/nbproject/private/
