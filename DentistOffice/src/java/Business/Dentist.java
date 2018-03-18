@@ -111,6 +111,10 @@ public class Dentist {
         this.email = email;
         this.office = office;
     }
+    
+    public AppointmentList getAppointmentList(){
+        return appointmentList;
+    }
 
     public String getId() {
         return id;

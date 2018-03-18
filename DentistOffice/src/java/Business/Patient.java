@@ -91,6 +91,33 @@ public class Patient {
         }
     }
     
+    public void selectFromDbWithId(String id) throws SQLException, ClassNotFoundException{
+        try{
+            
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/DentistOffice?autoReconnect=true&useSSL=false",
+                    "miguel","password");
+            Statement statement = connection.createStatement();
+            
+            ResultSet resultSet = statement.executeQuery("select * from Patients where patId='" + id + "';");
+            
+            resultSet.next();
+            
+            setAll(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), resultSet.getString(5), 
+                    resultSet.getString(6), resultSet.getString(7));
+            
+            ResultSet resultSetTwo = statement.executeQuery("select * from Appointments where patId='" + this.id + "';");
+            
+            resultSetTwo.next();
+            
+            this.appointment.setAll(resultSetTwo.getString(1), resultSetTwo.getString(2), resultSetTwo.getString(3), resultSetTwo.getString(4));
+            
+            
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    
     public String displayPatient(){
         return "Patient id: " + this.id + ".\nPassword: " + this.password + "\nFirst: " + this.firstName + "\nLast: " + this.lastName +
                 "\nEmail: " + this.email + "\nInsurance: " + this.insurance;
