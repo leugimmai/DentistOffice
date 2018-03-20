@@ -22,7 +22,7 @@ public class Appointment {
     private String patientId;
     private String dentistId;
     private String procedureCode;
-    
+    private boolean isEmpty = false;
     
     public Appointment(){
         this.apptDateTime = "";
@@ -60,6 +60,7 @@ public class Appointment {
             
             setAll(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4));
             
+            this.isEmpty = false;
             
         }catch(Exception ex){
             ex.printStackTrace();
@@ -84,6 +85,11 @@ public class Appointment {
         this.dentistId = dentistId;
         this.procedureCode = procedureCode;
     }
+    
+    public boolean isEmpty(){
+        return this.isEmpty;
+    }
+    
     
     public String getApptDateTime() {
         return apptDateTime;

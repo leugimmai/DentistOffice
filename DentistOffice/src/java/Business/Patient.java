@@ -7,6 +7,7 @@ package Business;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,6 +17,7 @@ import java.sql.Statement;
  * Patient Business Object Class
  */
 public class Patient {
+
     private String id;
     private String password;
     private String firstName;
@@ -24,9 +26,9 @@ public class Patient {
     private String email;
     private String insurance;
     private Appointment appointment = new Appointment();
-    
-    
-    public Patient(){
+    private boolean hasAppointment = false;
+
+    public Patient() {
         this.id = "";
         this.password = "";
         this.firstName = "";
@@ -35,18 +37,18 @@ public class Patient {
         this.email = "";
         this.insurance = "";
     }
-    
+
     /**
      * Constructor for Patient Class
+     *
      * @param id
      * @param password
      * @param firstName
      * @param lastName
      * @param address
      * @param email
-     * @param insurance 
+     * @param insurance
      */
-    
     public Patient(String id, String password, String firstName, String lastName, String address, String email, String insurance) {
         this.id = id;
         this.password = password;
@@ -56,80 +58,103 @@ public class Patient {
         this.email = email;
         this.insurance = insurance;
     }
-    
+
     /**
-     * Handles connecting to database and finding a patient matching with an email.
+     * Handles connecting to database and finding a patient matching with an
+     * email.
+     *
      * @param email
      * @throws SQLException
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException
      */
-    
-    public void selectFromDatabase(String email) throws SQLException, ClassNotFoundException{
-        try{
-            
+    public void selectFromDatabase(String email) throws SQLException, ClassNotFoundException {
+        try {
+
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/DentistOffice?autoReconnect=true&useSSL=false",
-                    "miguel","password");
+                    "miguel", "password");
             Statement statement = connection.createStatement();
-            
+
             ResultSet resultSet = statement.executeQuery("select * from Patients where email='" + email + "';");
-            
+
             resultSet.next();
-            
-            setAll(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), resultSet.getString(5), 
+
+            setAll(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), resultSet.getString(5),
                     resultSet.getString(6), resultSet.getString(7));
-            
+
             ResultSet resultSetTwo = statement.executeQuery("select * from Appointments where patId='" + this.id + "';");
             
             resultSetTwo.next();
-            
+
             this.appointment.setAll(resultSetTwo.getString(1), resultSetTwo.getString(2), resultSetTwo.getString(3), resultSetTwo.getString(4));
-            
-            
-        }catch(Exception ex){
+
+            hasAppointment = true;
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-    
-    public void selectFromDbWithId(String id) throws SQLException, ClassNotFoundException{
-        try{
-            
+
+    public void selectFromDbWithId(String id) throws SQLException, ClassNotFoundException {
+        try {
+
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/DentistOffice?autoReconnect=true&useSSL=false",
-                    "miguel","password");
+                    "miguel", "password");
             Statement statement = connection.createStatement();
-            
+
             ResultSet resultSet = statement.executeQuery("select * from Patients where patId='" + id + "';");
-            
+
             resultSet.next();
-            
-            setAll(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), resultSet.getString(5), 
+
+            setAll(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), resultSet.getString(5),
                     resultSet.getString(6), resultSet.getString(7));
-            
+
             ResultSet resultSetTwo = statement.executeQuery("select * from Appointments where patId='" + this.id + "';");
-            
+
             resultSetTwo.next();
-            
+
             this.appointment.setAll(resultSetTwo.getString(1), resultSetTwo.getString(2), resultSetTwo.getString(3), resultSetTwo.getString(4));
-            
-            
-        }catch(Exception ex){
+
+            hasAppointment = true;
+
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-    
-    public String displayPatient(){
-        return "Patient id: " + this.id + ".\nPassword: " + this.password + "\nFirst: " + this.firstName + "\nLast: " + this.lastName +
-                "\nEmail: " + this.email + "\nInsurance: " + this.insurance;
+
+    public void createAppointment(String dateTime, String dentistId, String procedureCode) {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/DentistOffice?autoReconnect=true&useSSL=false",
+                    "miguel", "password");
+            Statement statement = connection.createStatement();
+
+            String query = "INSERT INTO Appointments (apptDateTime, patId, dentId, procCode) VALUES('" + dateTime + "','" + this.id + "','" + dentistId + "','"
+                    + procedureCode + "');";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+            preparedStatement.execute();
+
+            hasAppointment = true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    
-    
+
+    public String displayPatient() {
+        return "Patient id: " + this.id + ".\nPassword: " + this.password + "\nFirst: " + this.firstName + "\nLast: " + this.lastName
+                + "\nEmail: " + this.email + "\nInsurance: " + this.insurance;
+    }
+
     /**
      * Getters and Setters for Patient class
-     * @return 
+     *
+     * @return
      */
-    
-    public void setAll(String id, String password, String firstName, String lastName, String address, String email, String insurance){
+    public void setAll(String id, String password, String firstName, String lastName, String address, String email, String insurance) {
         this.id = id;
         this.password = password;
         this.firstName = firstName;
@@ -138,9 +163,13 @@ public class Patient {
         this.email = email;
         this.insurance = insurance;
     }
-    
-    public Appointment getAppointment(){
+
+    public Appointment getAppointment() {
         return appointment;
+    }
+
+    public boolean hasAppointment() {
+        return hasAppointment;
     }
 
     public String getId() {
@@ -198,20 +227,19 @@ public class Patient {
     public void setInsurance(String insurance) {
         this.insurance = insurance;
     }
-    
-    
+
 //    public static void main(String[] args) {
 //        Patient p1 = new Patient();
 //        
 //        try{
 //            p1.selectFromDatabase("mstew@gmail.com");
+//            p1.createAppointment("TEST2", "D201", "P321");
 //        }catch(Exception ex){
 //            ex.printStackTrace();
 //        }
 //        
 //        System.out.println(p1.displayPatient());
 //        
-//        System.out.println(p1.appointment.displayAppointment());
+//        
 //    }
-    
 }

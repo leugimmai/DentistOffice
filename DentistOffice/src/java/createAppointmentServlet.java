@@ -11,13 +11,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import Business.*;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author miguel
  */
-@WebServlet(urlPatterns = {"/updateDentist"})
-public class updateDentist extends HttpServlet {
+@WebServlet(urlPatterns = {"/createAppointmentServlet"})
+public class createAppointmentServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -32,7 +35,33 @@ public class updateDentist extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
+
+            String dateTime = request.getParameter("dateTimePicker");
+            String dentistChoice = request.getParameter("dentistChoice");
+            String procedureChoice = request.getParameter("procedureChoice");
+            String patientId = request.getParameter("patientIdTb");
+
+            Patient patient = new Patient();
+
+            try {
+                patient.selectFromDbWithId(patientId);
+
+                patient.createAppointment(dateTime, dentistChoice, procedureChoice);
+                
+                HttpSession patientSession;
+                patientSession = request.getSession();
+                patientSession.setAttribute("Patient", patient);
+                
+
+            } catch (Exception e) {
+                System.out.println("Could Not Add Appointment");
+            }
             
+            
+
+            RequestDispatcher rd = request.getRequestDispatcher("/Patient.jsp");
+            rd.forward(request, response);
+
         }
     }
 

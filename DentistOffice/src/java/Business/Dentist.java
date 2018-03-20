@@ -7,6 +7,7 @@ package Business;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -91,6 +92,50 @@ public class Dentist {
         }
     }
     
+    public void selectFromDatabaseWithId(String id) throws SQLException, ClassNotFoundException{
+        try{
+            
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/DentistOffice?autoReconnect=true&useSSL=false",
+                    "miguel","password");
+            Statement statement = connection.createStatement();
+            
+            ResultSet resultSet = statement.executeQuery("select * from Dentists where id='" + id + "';");
+            
+            resultSet.next();
+            
+            setAll(resultSet.getString(1), resultSet.getString(2), resultSet.getString(3), resultSet.getString(4), resultSet.getString(5), 
+                    resultSet.getString(6));
+    
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    public void updateDentist(String password, String firstName, String lastName, String email, String officeNo, String dentistId) throws SQLException, ClassNotFoundException{
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/DentistOffice?autoReconnect=true&useSSL=false",
+                    "miguel","password");
+            
+            String query = "UPDATE Dentists SET firstName='" + firstName + "', lastName='" + lastName + "', email='" + email + "', passwd='" + password + "', office='" +
+                            officeNo + "' WHERE id='" + dentistId + "';";
+            
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            
+            preparedStatement.execute();
+            
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.email = email;
+            this.password = password;
+            this.office = officeNo;
+            
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    
     
     public String displayDentist(){
         return "Dentist id: " + this.id + ".\nPassword: " + this.password + "\nFirst: " + this.firstName + "\nLast: " + this.lastName +
@@ -101,6 +146,12 @@ public class Dentist {
     *
     *Getters and Setters for Dentist Class
     *
+     * @param id
+     * @param password
+     * @param firstName
+     * @param lastName
+     * @param email
+     * @param office
     */
     
     public void setAll(String id, String password, String firstName, String lastName, String email, String office){
@@ -169,6 +220,10 @@ public class Dentist {
         
         try{
             d1.selectFromDatabase("fm@gmail.com");
+            
+            String id = d1.getId();
+            
+            d1.updateDentist("1234", "Frank", "Miller", "frank@gmail.com", "300", id);
         
         }catch(Exception ex){
             ex.printStackTrace();
