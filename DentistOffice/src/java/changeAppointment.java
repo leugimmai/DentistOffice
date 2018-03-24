@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-import Business.Dentist;
+import Business.Patient;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
@@ -16,13 +16,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Java servlet that updates the dentists account information
+ * Java servlet that will delete the patients existing appointment so they can create
+ * a new appointment back at their account page.
  *
  * @author Miguel Quintana
  * @version 1.0
  */
-@WebServlet(urlPatterns = {"/updateDentistServlet"})
-public class updateDentistServlet extends HttpServlet {
+@WebServlet(urlPatterns = {"/changeAppointment"})
+public class changeAppointment extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -37,36 +38,33 @@ public class updateDentistServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-
-            //The new parameters from the dentists form submission to update
-            //their account
-            String firstName = request.getParameter("firstNameTB");
-            String lastName = request.getParameter("lastNameTB");
-            String email = request.getParameter("emailTB");
-            String officeNo = request.getParameter("officeNumberTB");
-            String password = request.getParameter("passwordTB");
-            String id = request.getParameter("dentistIdTB");
-
-            Dentist dentist = new Dentist();
+            
+            //Get patients id from hidden textbox input parameter and form.
+            //Got added in from the session previously created.
+            String patientId = request.getParameter("patientIdTb");
+            
+            Patient patient = new Patient();
 
             try {
+                //Find the patient information to add to the class and then delete 
+                //their existing appointment. Reinstantiate the information and 
+                //create a new session to forward back to their account page
+                //to set up a new appointment.
+                patient.selectFromDbWithId(patientId);
 
-                //Update the dentists account information in the database.
-                //Then create a new sessions and forward back to their main page.
-                dentist.updateDentist(password, firstName, lastName, email, officeNo, id);
+                patient.deleteAppointment(patientId);
 
-                System.out.println(dentist.displayDentist());
+                patient.selectFromDbWithId(patientId);
 
-                dentist.selectFromDatabase(email);
+                HttpSession patientSession;
+                patientSession = request.getSession();
+                patientSession.setAttribute("Patient", patient);
 
-                HttpSession dentistSession;
-                dentistSession = request.getSession();
-                dentistSession.setAttribute("Dentist", dentist);
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            RequestDispatcher rd = request.getRequestDispatcher("/Dentist.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("/Patient.jsp");
             rd.forward(request, response);
         }
     }

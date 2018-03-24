@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-import Business.Dentist;
+import Business.Patient;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
@@ -16,13 +16,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- * Java servlet that updates the dentists account information
- *
+ *Java servlet that updates the patients account information
  * @author Miguel Quintana
  * @version 1.0
  */
-@WebServlet(urlPatterns = {"/updateDentistServlet"})
-public class updateDentistServlet extends HttpServlet {
+@WebServlet(urlPatterns = {"/updatePatientServlet"})
+public class updatePatientServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -37,36 +36,37 @@ public class updateDentistServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-
-            //The new parameters from the dentists form submission to update
-            //their account
+            
+            //The parameters grabbed from the form to then update the patients account
             String firstName = request.getParameter("firstNameTB");
             String lastName = request.getParameter("lastNameTB");
             String email = request.getParameter("emailTB");
-            String officeNo = request.getParameter("officeNumberTB");
+            String address = request.getParameter("addressTB");
             String password = request.getParameter("passwordTB");
-            String id = request.getParameter("dentistIdTB");
-
-            Dentist dentist = new Dentist();
+            String id = request.getParameter("patientIdTB");
+            String insurance = request.getParameter("insuranceTB");
+            
+            
+            Patient patient = new Patient();
 
             try {
+                
+                //Update of the patients account in the database. To then create a 
+                //new session and forward back to their main page.
+                patient.updatePatient(id, password, firstName, lastName, address, email, insurance);
 
-                //Update the dentists account information in the database.
-                //Then create a new sessions and forward back to their main page.
-                dentist.updateDentist(password, firstName, lastName, email, officeNo, id);
-
-                System.out.println(dentist.displayDentist());
-
-                dentist.selectFromDatabase(email);
-
+                System.out.println(patient.displayPatient());
+                
+                patient.selectFromDbWithId(id);
+                
                 HttpSession dentistSession;
                 dentistSession = request.getSession();
-                dentistSession.setAttribute("Dentist", dentist);
+                dentistSession.setAttribute("Patient", patient);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
-            RequestDispatcher rd = request.getRequestDispatcher("/Dentist.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("/Patient.jsp");
             rd.forward(request, response);
         }
     }

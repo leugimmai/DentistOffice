@@ -16,8 +16,11 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpSession;
 
 /**
+ * Java servlet that creates an appointment for the patient in the database.
  *
- * @author miguel
+ * @author Miguel Quintana
+ * @version 1.0
+ *
  */
 @WebServlet(urlPatterns = {"/createAppointmentServlet"})
 public class createAppointmentServlet extends HttpServlet {
@@ -36,6 +39,8 @@ public class createAppointmentServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
 
+            //Parameters grabbed from the form field that is needed to make
+            //an appointment for the patient
             String dateTime = request.getParameter("dateTimePicker");
             String dentistChoice = request.getParameter("dentistChoice");
             String procedureChoice = request.getParameter("procedureChoice");
@@ -44,22 +49,25 @@ public class createAppointmentServlet extends HttpServlet {
             Patient patient = new Patient();
 
             try {
+
+                //Add patients information to the patient class using their id to then
+                //create an appointment. To create a new session with the patients updated
+                //information and forward to a confirmation page.
                 patient.selectFromDbWithId(patientId);
 
                 patient.createAppointment(dateTime, dentistChoice, procedureChoice);
-                
+
+                patient.selectFromDbWithId(patientId);
+
                 HttpSession patientSession;
                 patientSession = request.getSession();
                 patientSession.setAttribute("Patient", patient);
-                
 
             } catch (Exception e) {
                 System.out.println("Could Not Add Appointment");
             }
-            
-            
 
-            RequestDispatcher rd = request.getRequestDispatcher("/Patient.jsp");
+            RequestDispatcher rd = request.getRequestDispatcher("/appointmentConfirmation.jsp");
             rd.forward(request, response);
 
         }

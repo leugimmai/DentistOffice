@@ -16,8 +16,12 @@ import Business.*;
 import javax.servlet.http.HttpSession;
 
 /**
+ * Java servlet that validates the login of a patient or dentist. Will check the
+ * parameters such as email and password entered inside the form and check
+ * against the database.
  *
- * @author miguel
+ * @author Miguel Quintana
+ * @version 1.0
  */
 @WebServlet(urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
@@ -34,6 +38,7 @@ public class LoginServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        //The paramaters needed to check for login validation
         String email;
         String password;
         String accountType;
@@ -45,32 +50,33 @@ public class LoginServlet extends HttpServlet {
             accountType = request.getParameter("accountRadioBtn");
             email = request.getParameter("emailInput");
             password = request.getParameter("passwordInput");
-            
-            /**
-             * Checking Radio Boxes from Login Form to then validate for either Patient or Dentist
-             */
 
+            /**
+             * Checking Radio Boxes from Login Form to then validate for either
+             * Patient or Dentist
+             */
             if ("Patient".equals(accountType)) {
                 try {
 
                     Patient patient = new Patient();
                     patient.selectFromDatabase(email);
-                    
+
                     Appointment appt = new Appointment();
                     appt = patient.getAppointment();
-                    
 
                     if (password.equals(patient.getPassword())) {
+                        //Login was a success. Create a patient session and forward to the patients account.
+
                         HttpSession patientSession;
                         patientSession = request.getSession();
                         patientSession.setAttribute("Patient", patient);
-                        
-                        
+
                         RequestDispatcher rd = request.getRequestDispatcher("/Patient.jsp");
                         rd.forward(request, response);
-                        
-                        
+
                     } else {
+                        //Login information was wrong. Forward to error page.
+
                         RequestDispatcher rd = request.getRequestDispatcher("/LoginError.jsp");
                         rd.forward(request, response);
                     }
@@ -85,16 +91,16 @@ public class LoginServlet extends HttpServlet {
                     dentist.selectFromDatabase(email);
 
                     if (password.equals(dentist.getPassword())) {
-                        
+                        //Login was a sucess. Create a dentist session and forward to the dentists account.
+
                         HttpSession dentistSession;
                         dentistSession = request.getSession();
                         dentistSession.setAttribute("Dentist", dentist);
-                        
+
                         RequestDispatcher rd = request.getRequestDispatcher("/Dentist.jsp");
                         rd.forward(request, response);
 
-                        
-                    }else{
+                    } else {
                         RequestDispatcher rd = request.getRequestDispatcher("/LoginError.jsp");
                         rd.forward(request, response);
                     }
